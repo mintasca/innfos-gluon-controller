@@ -1,0 +1,1 @@
+export LD_LIBRARY_PATH=../ActuatorController_SDK/sdk/lib/linux_x86_64/:$LIBRARY_PATH
