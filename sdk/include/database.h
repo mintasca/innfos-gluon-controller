@@ -1,7 +1,7 @@
 #ifndef DATABASE_H
 #define DATABASE_H
 
-#include <../include/base.h>
+#include "base.h"
 
 class ResourceData
 {
@@ -25,9 +25,13 @@ public:
 	double reduction_gear_ratio_[MAX_AXIS_NUM];
 	double rotation_direction_[MAX_AXIS_NUM];
 	double dh_[4*MAX_AXIS_NUM];
+	double dynamics_ident_para_[13*MAX_AXIS_NUM];
 };
 
-int CreateTable();
+//#include <string>
+//int UpdateRobotType(string type);
+int UpdateRobotType(char *type);
+
 int SelectFromTableList(ResourceData *res_data);
 
 #endif

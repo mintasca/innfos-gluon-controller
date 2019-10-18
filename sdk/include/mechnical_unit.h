@@ -16,12 +16,12 @@ public:
 
 enum RobotType
 {
-	NE30_6,
-	DOF6_UR2,
-	BlackStone,
-	DOF7_SRS,
-	DOF3_MECHANICAL,
-	Othertype,
+	GL_4L3,
+	GL_6L3,
+	GL_2P8_P6_3P3,
+	GL_6L6,
+	GL_2L6_4L3,
+	FREE_COMBINATION,
 };
 
 enum ActuatorType
@@ -52,7 +52,6 @@ private:
 	double home_position_;	
 	int direct_; //rotation direct
 
-
 	//dynamics 
 	double m_; //mass
 	double p_[3];// position of center-of-mass(in the link coordinantes)	
@@ -77,7 +76,7 @@ public:
 
 	LinkUnit();
 	void SetActuatorId(ActuatorController *pointer,uint8_t id);
-	void SetMotinParameter(double reduction_rate,int direct);
+	void SetMotionParameter(double reduction_rate,int direct);
 	void SetParamets(ActuatorController *pointer,
 		uint8_t id,
 		double reduction_rate,
@@ -116,7 +115,6 @@ private:
 	int GetParametersFromActuator();
 	int GetParametersFromDatabase();
 	int AddLinkUnit(LinkUnit *link_unit,int axis_num);
-	int RebuildForFree();
 public:
 
 	Robot();

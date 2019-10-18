@@ -189,4 +189,6 @@ int MoveExcitationTrajectories(Robot *unit);
 
 int MoveJointPath(Robot *unit,double start_joint[],double target_joint[],AccDecDate *speed);
 
+int GetSpeedOverrideFromTerminal(double *value);
+
 #endif
