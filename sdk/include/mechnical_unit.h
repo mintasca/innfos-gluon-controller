@@ -144,6 +144,7 @@ public:
 	int InverseDynamics(double q[],double qd[],double qdd [],double tau[]);
 	int GravityCompensation(double q[],double qd[]);
 	int ServerInit();
+	int CollisionDetection(double last_q[],double q[],double qd[],double current[]);
 
 	~Robot();
 
