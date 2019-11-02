@@ -21,51 +21,60 @@ enum RobotType
 	GL_2P8_P6_3P3,
 	GL_6L6,
 	GL_2L6_4L3,
+	LINK_MECHANISM,
 	FREE_COMBINATION,
 };
 
 enum ActuatorType
 {
-	QDD_EL20_36,
-	QDD_NE30_36,
 	QDD_LITE_NE30_36,
-	QDD_PR60_36,
-	QDD_PRO_NU80_80_110,
+	QDD_LITE_PR60_36,
+
+	QDD_PRO_NU80_100_110,
 	QDD_PRO_PR60_80_90,
+	QDD_PRO_NE30_50_70,
+
+	ACTUATOR_FREE,
+
 };
 
 class LinkUnit
 {
 private:
+
 	uint8_t id_; //sca id
 	ActuatorType type_;//sca type
+
+	//automatic allocation
 	ActuatorController *pointer_;
 
-	//sca parameters
+	//get from sca type
+	double reduction_rate_;
+	double kt_;//torque constant
+
+	int direct_; //move direct 1:-1 default:1 
+
+	//sca parameters,get from sca
 	double max_motor_speed_;//transfer to axis
 	double min_soft_limit_;
 	double max_soft_limit_;
 
-	int joint_type_;//0:revolute, 1:prismatic
-
-	double reduction_rate_;
-	double home_position_;	
-	int direct_; //rotation direct
-
+	//int joint_type_;//0:revolute, 1:prismatic defult:0
+	//double home_position_;
 	//dynamics 
-	double m_; //mass
-	double p_[3];// position of center-of-mass(in the link coordinantes)	
-	double Ixx_;//inertia Ixx
-	double Ixy_;//inertia Ixy
-	double Ixz_;//inertia Ixz
-	double Iyy_;//inertia Iyy
-	double Iyz_;//inertia Iyz
-	double Izz_;//inertia Izz
-	double fv_;// viscous friction
-	double fc_; //coulomb friction
-	double Jm_;//motor inertia 
-public:
+	//double m_; //mass
+	//double p_[3];// position of center-of-mass(in the link coordinantes)	
+	//double Ixx_;//inertia Ixx
+	//double Ixy_;//inertia Ixy
+	//double Ixz_;//inertia Ixz
+	//double Iyy_;//inertia Iyy
+	//double Iyz_;//inertia Iyz
+	//double Izz_;//inertia Izz
+	//double fv_;// viscous friction
+	//double fc_; //coulomb friction
+	//double Jm_;//motor inertia 
 
+public:
 	AccDecDate joint_speed_;
 
 	//kinematics MDH parameters
@@ -75,27 +84,34 @@ public:
 	double d_;
 
 	LinkUnit();
-	void SetActuatorId(ActuatorController *pointer,uint8_t id);
-	void SetMotionParameter(double reduction_rate,int direct);
-	void SetParamets(ActuatorController *pointer,
-		uint8_t id,
-		double reduction_rate,
-		double direct,
-		double theta,
-		double alpha,
-		double a,
-		double d);
+	int InitActuator(uint8_t id,ActuatorType type_);
+	uint8_t GetActuatorId();
+
+	void SetActuatorPointer(ActuatorController *pointer);
+	void SetMdhParameters(double theta,double alpha,double a,double d);
+	void SetSpeedData(double vel,double acc,double jerk);
+	void SetDirect(int direct);
 	int GetActuatorData();
-	double GetActuatorPositionSlow();
-	double GetActuatorPositionFast();
-	double GetActuatorCurrentFast();
-	double GetActuatorVelocityFast();
-	uint32_t GetErrorCode();
-	void SetActuatorPosition(double pos);
-	void SetActuatorCurrent(double current);
-	int CheckPosition(double joint,double last_joint,double sample);
-	int CheckPositionxx(double joint);
+
 	void RequestCVPValue();
+	void GetActuatorCVPFast(double *current,double *vel,double *pos);
+	void GetActuatorTVPFast(double *tau,double *vel,double *pos);
+	double GetActuatorPositionFast();
+	double GetActuatorPositionSlow();
+
+	void SetActuatorTorque(double tau);
+	void SetActuatorPosition(double pos);
+	void SetActuatorHomingPosition();
+	void SetActuatorLimitData(double min_pos, double max_pos);
+	void SetActuatorPositionPidData(double kp,double ki,double kd);	
+	void SetActuatorVelocityPiData(double kp,double ki);
+
+	uint32_t GetErrorCode();
+	void ClearActuatorError();
+	int CheckPosition(double joint,double last_joint,double sample);
+	int CheckTorque(double tau);
+	void DisableActuator();
+	bool SaveActuatorParameters();
 
 	~LinkUnit();
 };
@@ -114,42 +130,53 @@ private:
 
 	int GetParametersFromActuator();
 	int GetParametersFromDatabase();
-	int AddLinkUnit(LinkUnit *link_unit,int axis_num);
 public:
 
 	Robot();
-
-	int InitRobot(LinkUnit *link_unit,int axis_num);
-	void ActivateCurrentMode();
-	void ActivatePositionMode();
+	int ServerInit();
 
 	int GetRobotJointNum();
-	void RequestCVPValue();
-	void AddParaRequestCallback(ActuatorController::doubleFuncPointer callback);
-	void ClearAllActuatorCallbacks();
 	int GetRobotType();
 	uint32_t GetErrorCode();
 	void GetCurrentCVPFast(double current[],double vel[],double pos[]);
+	void GetCurrentTVPFast(double tau[],double vel[],double pos[]);
 	void GetCurrentMachineJoint(double angle[]);
 	void GetCurrentMachineJointFast(double angle[]);
-	int SendMachinePosition(double joint[],double last_joint[]);
-	int SendPosition(double joint[],double last_joint[],int sample_us);
-	int SetPosition(double joint[]);
 	void GetJointSpeedAccDecParameters(AccDecDate *joint_speed);
 	void GetLineSpeedAccDecParameters(AccDecDate *line_speed);
 	void GetRotateSpeedAccDecParameters(AccDecDate *rot_speed);
+
+	void DisableRobot();
+	int SaveParameters();
+	void ActivateHomingMode();
+	void ActivateCurrentMode();
+	void ActivateVelocityMode();
+	void ActivatePositionMode();
+	void RequestCVPValue();
+	void AddParaRequestCallback(ActuatorController::doubleFuncPointer callback);
+	void ClearAllActuatorCallbacks();
+
+	int SendMachinePosition(double joint[],double last_joint[]);
+	int SetMachineTorque(double tau[]);
+	int SendPosition(double joint[],double last_joint[],int sample_us);
+	int SetPosition(double joint[]);	
+	int SetHomingPosition();
+	int SetLimitData(double min_pos[],double max_pos[]);	
+	int SetPositionPidData(double kp[],double ki[],double kd[]);
+	int SetVelocityPiData(double kp[],double ki[]);
+
 	int ForwardKinematics(double q[],double pose[]);
 	int InverseKinematics(double q[],double pose[]);
 	int ForwardDynamics();
 	int InverseDynamics(double q[],double qd[],double qdd [],double tau[]);
 	int GravityCompensation(double q[],double qd[]);
-	int ServerInit();
-	int CollisionDetection(double last_q[],double q[],double qd[],double current[]);
+	int CollisionDetection(double last_q[],double q[],double qd[],double tau[],double w_direct[3]);
 
 	~Robot();
 
 };
 
 void DisableAllActuator();
+void InitC();
 
 #endif
