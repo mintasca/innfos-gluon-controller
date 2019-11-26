@@ -1,3 +1,3 @@
 export LD_LIBRARY_PATH=$PWD/sdk/lib/:$LD_LIBRARY_PATH
-export LD_LIBRARY_PATH=$PWD/../innfos-cpp-sdk/sdk/lib/linux_x86_64/:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=$PWD/innfos-cpp-sdk/sdk/lib/linux_x86_64/:$LD_LIBRARY_PATH
 
