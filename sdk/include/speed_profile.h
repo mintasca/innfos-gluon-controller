@@ -1,4 +1,4 @@
-﻿#ifndef SPEED_PROFILE_H
+#ifndef SPEED_PROFILE_H
 #define SPEED_PROFILE_H
 
 class SpeedProfile

@@ -1,4 +1,4 @@
-﻿#ifndef MATH_FUN_H
+#ifndef MATH_FUN_H
 #define MATH_FUN_H
 
 int inverse_matrix(double *a, int n);

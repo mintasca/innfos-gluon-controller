@@ -1,7 +1,7 @@
 ﻿#ifndef BASE_H
 #define BASE_H
 
-#define PERIOD 0.002
+#define PERIOD 0.004
 
 #define pi 3.1415926
 
@@ -12,4 +12,5 @@
 
 #define MAX_PATH_NUM 1000
 
+#define MECHNIACL_NUM 1
 #endif

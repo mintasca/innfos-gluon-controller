@@ -1,4 +1,4 @@
-﻿#ifndef KINEMATICS_H
+#ifndef KINEMATICS_H
 #define KINEMATICS_H
 
 void fk_ur(const double q[6], double A6[4][4],double dh[]);

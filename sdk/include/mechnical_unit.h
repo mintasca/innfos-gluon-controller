@@ -3,6 +3,7 @@
 
 
 #include "base.h"
+#include "database.h"
 #include "actuatorcontroller.h"
 
 class AccDecDate
@@ -12,6 +13,13 @@ public:
 	double acc;
 	double jerk;
 	void SetParameter(double v,double a,double jerk);
+};
+
+enum RobotStatus
+{
+	ON = 0,
+	OFF = 1,
+	ABNORMAL = 2,
 };
 
 enum RobotType
@@ -27,15 +35,16 @@ enum RobotType
 
 enum ActuatorType
 {
-	QDD_LITE_NE30_36,
 	QDD_LITE_PR60_36,
-
+	QDD_LITE_NE30_36,
+	QDD_LITE_EL20_36,
+	QDD_PR60_36,
+	QDD_NE30_36,
+	QDD_EL20_36,
 	QDD_PRO_NU80_100_110,
 	QDD_PRO_PR60_80_90,
 	QDD_PRO_NE30_50_70,
-
 	ACTUATOR_FREE,
-
 };
 
 class LinkUnit
@@ -103,6 +112,7 @@ public:
 	void SetActuatorPosition(double pos);
 	void SetActuatorHomingPosition();
 	void SetActuatorLimitData(double min_pos, double max_pos);
+	void SetLockEnergy(double energy);
 	void SetActuatorPositionPidData(double kp,double ki,double kd);	
 	void SetActuatorVelocityPiData(double kp,double ki);
 
@@ -112,7 +122,6 @@ public:
 	int CheckTorque(double tau);
 	void DisableActuator();
 	bool SaveActuatorParameters();
-
 	~LinkUnit();
 };
 
@@ -129,11 +138,14 @@ private:
 	vector< ActuatorController::UnifiedID > unified_id_array_;
 
 	int GetParametersFromActuator();
-	int GetParametersFromDatabase();
+	int GetParametersFromDatabase();	
+	int AddLinkUnit(LinkUnit * link_unit,int axis_num);
 public:
 
 	Robot();
-	int ServerInit();
+	int InitRobot(LinkUnit *link_unit,int axis_num);
+	int ServerInit(ActuatorController * pointer_controller,
+	vector <uint8_t>	 id_vec,vector< ActuatorController::UnifiedID > uid_vec);
 
 	int GetRobotJointNum();
 	int GetRobotType();
@@ -158,10 +170,11 @@ public:
 
 	int SendMachinePosition(double joint[],double last_joint[]);
 	int SetMachineTorque(double tau[]);
-	int SendPosition(double joint[],double last_joint[],int sample_us);
+	int SendPosition(double joint[],double last_joint[]);
 	int SetPosition(double joint[]);	
 	int SetHomingPosition();
 	int SetLimitData(double min_pos[],double max_pos[]);	
+	int SetLockEnergy(double energy[]);
 	int SetPositionPidData(double kp[],double ki[],double kd[]);
 	int SetVelocityPiData(double kp[],double ki[]);
 
@@ -176,7 +189,15 @@ public:
 
 };
 
+//class Mechniancl;
+//Group
+
 void DisableAllActuator();
 void InitC();
+Robot* GetCurrentRobot();
+void SetRealTimePos(double value[]);
+void GetRealTimePos(double value[]);
+
+ResourceData * GetResourceDate();
 
 #endif

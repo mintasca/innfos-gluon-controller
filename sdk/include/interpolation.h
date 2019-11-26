@@ -1,12 +1,35 @@
 #ifndef INTERPOLATION_H
 #define INTERPOLATION_H
 
-#include <../include/base.h>
-#include <../include/speed_profile.h>
-#include <../include/mechnical_unit.h>
+#include "base.h"
+#include "speed_profile.h"
+#include "mechnical_unit.h"
+#define TRAGECTORY_FILE "file/trajectory.txt"
 
-#include "actuatorcontroller.h"
+//#include "actuatorcontroller.h"
 
+class SpeedData
+{
+	int level_;
+public:
+	SpeedData(); 
+	~SpeedData(); 
+	double v_ori_;
+	double v_tcp_;
+	double vj_;	
+	int GetInstructionSpeedData(char *speed_level);
+};
+class ZoneData
+{
+public:
+	int level_;
+	double percent_;
+	double distance_;	
+	int GetInstructionZoneData(char * zone_char);
+};
+
+
+int decode_char_line(const char *line,double pos[],int num);
 
 class JointPath
 {
@@ -113,26 +136,6 @@ enum MoveType
 	MoveCircular,
 };
 
-class SpeedData
-{
-	int level_;
-public:
-	SpeedData(); 
-	~SpeedData(); 
-	double v_ori_;
-	double v_tcp_;
-	double vj_;	
-	int GetInstructionSpeedData(char *speed_level);
-};
-class ZoneData
-{
-public:
-	int level_;
-	double percent_;
-	double distance_;	
-	int GetInstructionZoneData(char * zone_char);
-};
-
 class SpeedOverride
 {
 public:
@@ -141,6 +144,9 @@ public:
 	double dec_;
 	double jerk_;
 };
+
+void InitSpeedOverride();
+void SetSpeedOverride(double v);
 
 class InterpolationData
 {
@@ -174,21 +180,33 @@ public:
 };
 
 
-void InitSpeedOverride();
-void SetSpeedOverride(double v);
-
-int RecordSinglePointInDragTeachMode(Robot *unit);
-int ReplayPathStep(Robot *unit,InterpolationData *path_list,int count);
-int ReplayPathList(Robot *unit,InterpolationData *path_list,int count);
-int ReplayPathListSmooth(Robot *unit,InterpolationData *path_list,int count);
-
-int RecordContinuousPointInDragTeachMode(Robot *unit);
-int ReplayTrajectory(Robot *unit);
-
-int MoveExcitationTrajectories(Robot *unit);
-
 int MoveJointPath(Robot *unit,double start_joint[],double target_joint[],AccDecDate *speed);
+int MoveToSpecifiedPosition(double target_joint[]);
+int MoveToHomePosition();
+int MoveToStablePosition();
 
-int GetSpeedOverrideFromTerminal(double *value);
+int MoveLinearPath(Robot *unit,double start_joint[],double target_joint[],AccDecDate *line_speed,AccDecDate *rot_speed);
+int MoveCircularPath(Robot *unit,double start_joint[],double aux_joint[],double target_joint[],AccDecDate *line_speed,AccDecDate *rot_speed);
+int MovePathList(Robot *unit,InterpolationData *path_list,int count);
+int MovePathListSmooth(Robot *unit,InterpolationData *path_list,int count);
+int MoveTrajectory(Robot *unit,string file_name,bool infinite_flag);
+int MoveExcitationTrajectories(Robot *unit,int iter_num);
+int ReplayPathStep(Robot *unit,InterpolationData *path_list,int count);
+
+int RecordSinglePointInDragTeachMode(Robot *unit,string file_name);
+int RecordContinuousPointInDragTeachMode(Robot *unit,string file_name);
+
+//int SaveMatrixToFile(string file_name,double matrix[],int row,int column);
+bool IsTerminal();
+void SetTerminalFlag();
+int GetReplayOverrideFromTerminal();
+int SetSpeedOverride();
+void SetReplayOverride(double value);
+
+//void InitStopFlag();
+//void SetStopFlag();
+
+
+
 
 #endif
