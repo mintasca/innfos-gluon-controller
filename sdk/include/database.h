@@ -6,7 +6,7 @@
 class ResourceData
 {
 public:
-	int free_force_switch_;//0:off 1:on
+	bool free_force_switch_;//0:off 1:on
 	double free_force_factor_;//0.5 - 1.5
 	int type_;
 	double joint_max_speed_[MAX_AXIS_NUM];
